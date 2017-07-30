@@ -1,0 +1,35 @@
+{
+  "name": "bosques-core",
+  "version": "1.0.0",
+  "description": "Core JS module",
+  "main": "index.js",
+  "scripts": {
+    "start": "gulp clean && gulp",
+    "test": "gulp clean && gulp && gulp host watch:ts watch:html watch:vendor watch:asset"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bosques/core.git"
+  },
+  "keywords": [
+    "bosques",
+    "core"
+  ],
+  "author": "mind0n",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/Bosques/core/issues"
+  },
+  "homepage": "https://github.com/Bosques/core#readme",
+  "dependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
+    "gulp-shell": "^0.6.3",
+    "gulp-task-register": "^1.1.9",
+    "gulp-typescript": "^3.2.1",
+    "gulp-webserver": "^0.9.1",
+    "node-sass": "^4.5.3",
+    "run-sequence": "^2.1.0",
+    "typescript": "^2.4.2"
+  }
+}

@@ -1,0 +1,121 @@
+@import "_reset.scss";
+@import "_definition.scss";
+@import "_layout.scss";
+
+body#{$root}.#{$theme}, #{$root} body.#{$theme}{
+    background: radial-gradient( $bg-color-start, $bg-color-end); /* Standard syntax */        
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color:$font-color;
+}
+
+
+#{$root}.#{$theme}, #{$root} .#{$theme}{
+    svg, svg *{
+        stroke: $font-color;
+    }
+    svg path, svg rect, svg ellipse{
+        fill: $font-color;
+    }
+    svg{
+        width:32px;
+        height:32px;
+    }
+    .noselect {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+    }
+    .w-hidden, .hidden{
+        display:none !important;
+    }
+    .w-invisible{
+        visibility:hidden; 
+        width:0.1px;
+        height:0.1px;
+        opacity:0;
+    }
+    .w-holder{
+        border:none;
+        margin:0;
+        padding:0;
+    }
+    .w-inline{
+        display:inline-block;
+    }
+    .w-center{
+        text-align: center;
+    }
+    .w-title{
+        font:$font-title;
+        line-height: $unit * 3;
+        margin-bottom: $unit*3;
+    }
+    .w-boundary{
+        margin:$unit;
+    }
+    .w-wrap{
+        word-break: break-all !important;
+        white-space: normal !important;
+        overflow: hidden !important;
+        text-overflow: initial !important;
+    }
+
+    .w-widget{
+        background-color:$bg-widget-color;
+        padding:$unit*2;
+        border-radius:$radius;
+    }
+    .w-default{
+        color:$font-color;
+        background-color: $bg-default-color;
+    }
+    .w-primary{
+        background-color:$bg-primary-color;
+        color:$fg-primary-color;
+    }
+    .w-primary:hover{
+        background-color:$bg-primary-hover-color;
+        color:$fg-primary-color;
+    }
+    .w-primary:active, .w-primary:focus{
+        background-color:$bg-primary-active-color;
+        color:$fg-primary-color;
+    }
+
+    .w-link-btn button{
+        border:none !important;
+        background-color: transparent !important;
+    }
+
+    .w-disabled{
+        cursor: not-allowed !important;
+        background-color: $bg-disabled-color !important;
+        color: $fg-disabled-color !important;
+    }
+
+    .w-cover{
+        position: absolute;
+        left:0;
+        top:0;
+        width:100%;
+        height:100%;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: $zcover;
+        background:rgba(0,0,0,0.2);
+    }
+
+}
+
+// @import "../widgets/_basic.scss";
+// @import "../widgets/_grid.scss";
+// @import "../widgets/_upload.scss";

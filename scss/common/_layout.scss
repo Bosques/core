@@ -1,0 +1,47 @@
+
+@mixin media($name, $size, $num){
+    @for $i from 1 through $num{
+        #{$root} {
+            @media(#{$size}){
+                .col-#{$name}-#{$i}{
+                    width: $i / $num * 100%;
+                    padding:0;
+                    float:left;
+                }
+                .skip-#{$name}-#{$i}{
+                    margin-left: $i / $num * 100%;
+                }
+                .lb-#{$name}-#{$i} .wo-label{
+                    width: $i / $num * 100%;
+                }
+                .wg-#{$name}-#{$i} .wo-widget{
+                    width: $i / $num * 100%;
+                }
+                // .fl-#{$name}-#{$i}{
+                //     float:left;
+                // }
+                // .fr-#{$name}-#{$i}{
+                //     float:right;
+                // }
+            }
+        }        
+    }
+}
+
+@mixin avg($num){
+    @for $i from 1 through $num{
+        .wo-layout .avg-#{$i} {
+            width: 1 / $i * 100%;
+        }
+    }
+}
+$layout-size: 12;
+
+@include avg($layout-size);
+
+@include media("phone-p", $phone-p, $layout-size);
+@include media("phone-l", $phone-l, $layout-size);
+@include media("tablet-p", $tablet-p, $layout-size);
+@include media("tablet-l", $tablet-l, $layout-size);
+@include media("desktop", $desktop, $layout-size);
+@include media("desktop-lg", $desktop-lg, $layout-size);

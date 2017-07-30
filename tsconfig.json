@@ -1,0 +1,32 @@
+// tsconfig.json
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "outFile": "./dist/bundle.js",
+        "baseUrl": "./src",
+        "sourceMap": true,
+        "declaration": true,
+        "diagnostics": true,
+        "moduleResolution": "node",
+        "module":"amd",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "target": "es5",
+        "noImplicitAny": true,
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "allowSyntheticDefaultImports": true,
+        "lib": [
+            "dom",
+            "es5",
+            "es2015.promise"
+        ]
+    }
+    , "files": [
+        "./src/main.ts"
+    ]
+    ,"exclude": [
+        "node_modules"
+    ]
+}
