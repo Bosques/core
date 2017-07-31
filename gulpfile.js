@@ -4,6 +4,7 @@ var runSequence =   require('run-sequence');
 var reg         =   require('gulp-task-register');
 reg([
     'clean'     // cleanup dist directory
+    , 'pre'     // pre-build tasks (eg. build external projects and import the declarations)
     , 'vendor'  // eg. jQuery, BabylonJs
     , 'page'    // copy html files
     , 'asset'   // copy image, fonts, etc.

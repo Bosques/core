@@ -9,7 +9,7 @@
         "diagnostics": true,
         "moduleResolution": "node",
         "module":"amd",
-        "emitDecoratorMetadata": true,
+        "emitDecoratorMetadata": false,
         "experimentalDecorators": true,
         "target": "es5",
         "noImplicitAny": true,
