@@ -2,7 +2,7 @@
 {
     "compilerOptions": {
         "outDir": "./dist",
-        "outFile": "./dist/bundle.js",
+        "outFile": "./dist/core.js",
         "baseUrl": "./src",
         "sourceMap": true,
         "declaration": true,
@@ -24,7 +24,7 @@
         ]
     }
     , "files": [
-        "./src/main.ts"
+        "./src/core.ts"
     ]
     ,"exclude": [
         "node_modules"

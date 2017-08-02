@@ -1,4 +1,3 @@
-///<reference path="../dist/bundle.d.ts" />
 import {add} from "common";
 export function log(msg:string){
     let list:any[] = [];
