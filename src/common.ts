@@ -201,11 +201,19 @@ export class Factory<T>{
 }
 export class NamedFactory<T extends NamedObject>{
     protected cache:any = {};
+    constructor(protected caseSensitive?:boolean){
+
+    }
     regist(item:T){
-        this.cache[item.name] = item;
+        let name = item.name;
+        if (!this.caseSensitive){
+            name = name.toLowerCase();
+        }
+        this.cache[name] = item;
     }
     get(name:string){
-        return this.cache[name];
+        let n = (!this.caseSensitive)?name.toLowerCase():name;
+        return this.cache[n];
     }
 }
 
@@ -214,7 +222,7 @@ export class NamedObject{
     get name():string{
         return this._name;
     }
-    constructor(name:string, protected ignoreCase?:boolean){
-        this._name = ignoreCase?name.toLowerCase():name;
+    constructor(name:string, protected caseSensitive?:boolean){
+        this._name = caseSensitive?name:name.toLowerCase();
     }
 }

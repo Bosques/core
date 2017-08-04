@@ -3,18 +3,26 @@ import * as core from '../../common';
 
 export class Noder extends core.NamedFactory<ModuleFactory>{
     constructor(){
-        super();
+        super(true);
     }
     parse(entry:any){
         let entries = this.getentries(entry);
         let self = this;
-        let items:ModuleItem[] = [];
-        core.all(entries, (it:Element, i:number)=>{
-            let factory = self.get(it.tagName);
-            if (factory){
-                core.add(items, new ModuleItem(factory, it));
-            }
+        core.all(entries, (it:OperationNode, i:number)=>{
+            self.parseNode(it);
         });
+    }
+    parseNode(target:OperationNode){
+        let self = this;
+        let factory = self.get(target.nodeName);
+        if (factory){
+            let mi = new ModuleItem(factory, target);
+            mi.prepare();
+            core.all(target.childNodes, function(item:any, i:number){
+                self.parseNode(item);
+            });
+            mi.prepare();
+        }
     }
     protected getentries(entry:any){
         let entryEls = entry;
@@ -47,15 +55,27 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
     }
 }
 
-export class ModuleFactory extends core.NamedObject{
+export abstract class ModuleFactory extends core.NamedObject{
     constructor(name:string){
-        super(name, true);
+        super(name);
     }
+    abstract prepare(target:OperationNode):void;
+    abstract process(target:OperationNode):void;
 }
 
 export class ModuleItem{
     constructor(
-    public factory:ModuleFactory
-    ,public target:Element
+        public factory:ModuleFactory
+        ,public target:OperationNode
     ){}
+    prepare(){
+        this.factory.prepare(this.target);
+    }
+    process(){
+        this.factory.process(this.target);
+    }
+}
+
+export interface OperationNode extends Node{
+
 }
