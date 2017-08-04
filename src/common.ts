@@ -199,12 +199,22 @@ export class Factory<T>{
         add(this.list, item);
     }
 }
-export class NamedFactory<T>{
+export class NamedFactory<T extends NamedObject>{
     protected cache:any = {};
-    regist(name:string, item:T){
-        this.cache[name] = item;
+    regist(item:T){
+        this.cache[item.name] = item;
     }
     get(name:string){
         return this.cache[name];
+    }
+}
+
+export class NamedObject{
+    protected _name:string;
+    get name():string{
+        return this._name;
+    }
+    constructor(name:string, protected ignoreCase?:boolean){
+        this._name = ignoreCase?name.toLowerCase():name;
     }
 }

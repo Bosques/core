@@ -1,9 +1,13 @@
 import {log} from './info';
-//import * as common from './common';
 import {add} from './common';
+import {Noder} from './web/modules/noder';
 
-export function init(){
-    log("Main module loaded");
+let noder = new Noder();
+export function init(callback?:Function){
+    if (callback){
+        callback(noder);
+    }
+    log("Core module loaded");
 }
 
 let w = <any>window;
