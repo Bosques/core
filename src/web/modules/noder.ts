@@ -2,6 +2,7 @@ import * as core from '../../common';
 
 
 export class Noder extends core.NamedFactory<ModuleFactory>{
+    static readonly instance:Noder = new Noder();
     constructor(){
         super(true);
     }
