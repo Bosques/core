@@ -1,4 +1,6 @@
 import * as core from '../../common';
+import {ModuleFactory, Module, NodeModule} from './modulefactory';
+import {OperationNode} from './operationode';
 
 
 export class Noder extends core.NamedFactory<ModuleFactory>{
@@ -13,16 +15,51 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
             self.parseNode(it);
         });
     }
-    parseNode(target:OperationNode){
+    private getfactoryname(nodename:string){
+        if (nodename && nodename.indexOf('.')>0){
+            let list = nodename.split('.');
+            return {f:list[0], m:list.length > 1?list[1]:''};
+        }
+        return {f:nodename, m:nodename};
+    }
+    parseNode(target:OperationNode, parentNode?:OperationNode){
+        OperationNode.check(target, parentNode);
         let self = this;
-        let factory = self.get(target.nodeName);
+        let r = self.getfactoryname(target.nodeName);
+        let factory = <ModuleFactory>self.get(r.f);
         if (factory){
-            let mi = new ModuleItem(factory, target);
-            mi.prepare();
-            core.all(target.childNodes, function(item:any, i:number){
-                self.parseNode(item);
+            let template:any = {tag:r.m};
+            let alias:any = undefined;
+            let group = false;
+            core.all(target.attributes, (attr:Node, i:number)=>{
+                if (attr.nodeName == 'alias'){
+                    alias = attr.nodeValue;
+                }else if (attr.nodeName == 'group'){
+                    alias = attr.nodeValue;
+                    group = true;
+                }else{
+                    template[attr.nodeName] = attr.nodeValue;
+                }
             });
-            mi.prepare();
+            let md = factory.create(template);
+            if (md){
+                target.md = md;
+                if (parentNode){
+                    parentNode.setchild(target);
+                }
+                if (alias){
+                    target.setalias(alias,group);
+                }
+                if (core.is(md, NodeModule)){
+                    let ndmodule = <NodeModule>md;
+                    ndmodule.render(target);
+                }
+                core.all(target.childNodes, function(item:any, i:number){
+                    self.parseNode(item, target);
+                });
+                md.setup();
+            }
+
         }
     }
     protected getentries(entry:any){
@@ -56,27 +93,3 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
     }
 }
 
-export abstract class ModuleFactory extends core.NamedObject{
-    constructor(name:string){
-        super(name);
-    }
-    abstract prepare(target:OperationNode):void;
-    abstract process(target:OperationNode):void;
-}
-
-export class ModuleItem{
-    constructor(
-        public factory:ModuleFactory
-        ,public target:OperationNode
-    ){}
-    prepare(){
-        this.factory.prepare(this.target);
-    }
-    process(){
-        this.factory.process(this.target);
-    }
-}
-
-export interface OperationNode extends Node{
-
-}

@@ -192,6 +192,9 @@ export function diff(a:Date, b:Date, mode?:number){
     }
     return Math.floor(d/m);
 }
+export function is(target:any, type:any){
+    return target instanceof type;
+}
 
 export class Factory<T>{
     protected list:T[] = [];

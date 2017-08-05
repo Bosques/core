@@ -14,6 +14,7 @@ export function delcss(target:any, name:string){
         target.className = s;
     }
 }
+
 export function destroy(target:Node){
     let b = <any>document.body;
     if (!b.$destroyer$){
@@ -31,6 +32,7 @@ export function destroy(target:Node){
     d.appendChild(target);
     d.innerHTML = '';
 }
+
 export function evtarget(event:Event, callback?:Function){
     let el = event.target || event.srcElement;
     if (callback){
@@ -38,6 +40,22 @@ export function evtarget(event:Event, callback?:Function){
     }
     return el;
 }
+
+export function make(html:string){
+    let d = <any>document;
+    if (!d.$tmp$){
+        d.$tmp$ = document.createElement('div');
+    }
+    let t = <Element>d.$tmp$;
+    t.className = 'child-wrap';
+    t.innerHTML = html;
+    if (t.childNodes.length > 1){
+        d.$tmp$ = null;
+        return t;
+    }
+    return t.firstChild;
+}
+
 export function create(html:string, multiple?:boolean):Node{
     let b = <any>document.body;
     if (!b.$creator$){
