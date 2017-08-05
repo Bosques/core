@@ -1,3 +1,5 @@
+///<amd-module name="ModuleFactories"/>
+
 import * as core from "../../common";
 import {OperationNode} from "./operationode";
 import * as nodes from "../elements";
