@@ -6,7 +6,7 @@ import {OperationNode} from './operationode';
 export class Noder extends core.NamedFactory<ModuleFactory>{
     static readonly instance:Noder = new Noder();
     constructor(){
-        super(true);
+        super();
     }
     parse(entry:any){
         let entries = this.getentries(entry);
@@ -22,8 +22,8 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
         }
         return {f:nodename, m:nodename};
     }
-    parseNode(target:OperationNode, parentNode?:OperationNode){
-        OperationNode.check(target, parentNode);
+    parseNode(target:OperationNode, parent?:Module){
+        OperationNode.check(target);
         let self = this;
         let r = self.getfactoryname(target.nodeName);
         let factory = <ModuleFactory>self.get(r.f);
@@ -44,22 +44,43 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
             let md = factory.create(template);
             if (md){
                 target.md = md;
-                if (parentNode){
-                    parentNode.setchild(target);
+                md.$ref = target;
+                if (parent){
+                    //parentNode.setchild(target);
+                    //parentNode.md.setchild(md);
+                    md.setparent(parent);
                 }
                 if (alias){
-                    target.setalias(alias,group);
-                }
+                    md.setalias(alias, group);
+                    target.setalias(alias);
+                }        
+                core.trigger(md, 'created');
                 if (core.is(md, NodeModule)){
                     let ndmodule = <NodeModule>md;
-                    ndmodule.render(target);
+                    let node = ndmodule.render(target);
+                    core.trigger(md, 'rendered', [node]);
                 }
                 core.all(target.childNodes, function(item:any, i:number){
-                    self.parseNode(item, target);
+                    self.parseNode(item, md);
+                    let el = <OperationNode>item;
+                    let alias = el.getAttribute('alias');
+                    if (alias){
+                        el.setalias(alias);
+                    }
                 });
-                md.setup();
+                core.trigger(md, 'ready');
             }
-
+        }else{
+            core.all(target.childNodes, function(item:Node, i:number){
+                if (item.nodeName.indexOf('#')<0){
+                    self.parseNode(<any>item);
+                    let el = <OperationNode>item;
+                    let alias = el.getAttribute('alias');
+                    if (alias){
+                        el.setalias(alias);
+                    }
+                }
+            });
         }
     }
     protected getentries(entry:any){

@@ -1,10 +1,21 @@
-import {Module} from "./modulefactory";
-export class OperationNode extends Node{
+import { Module, ModuleScope } from "./modulefactory";
+import {Cursor} from "../../cursor";
+
+export abstract class OperationNode extends Element{
 
     static check(node:OperationNode, parent?:OperationNode){
         if (node.nodeName.indexOf('#') < 0){
-            Cursor.check(node);
-
+            Cursor.check<OperationNode>(node);
+            node.setalias = function(alias:string){
+                let u = <any>this.cs().unit;
+                u[`$${alias}`] = this;
+            };
+            node.cs = function(){
+               return this.cs;
+            };
+            node.scope=function(){
+                return this.md.scope;
+            };
             return true;
         }
         return false;
@@ -12,64 +23,9 @@ export class OperationNode extends Node{
 
     md:Module;
 
-    cs:Cursor;
+    abstract cs():Cursor<OperationNode>;
 
-    scope:OperationScope;
+    abstract scope():ModuleScope;
 
-    setalias(alias:string, group?:boolean){
-        let u = <any>this.cs.unit;
-        u[`$${alias}`] = this;
-        if (group){
-            this.scope = new OperationScope(this.scope);
-        }
-    }
-    setchild(node:OperationNode){
-        node.cs.parent = this;
-        node.cs.root = this.cs.root;
-        node.cs.unit = this.cs.childunit;
-        this.md.setchild(node.md);
-    }
-}
-
-export class OperationScope{
-    static check(target:OperationNode, parent?:OperationNode){
-        if (target){
-            if (!target.scope && parent.scope){
-                target.scope = parent.scope;
-            }else if (!target.scope && parent && !parent.scope){
-                // Parent should always have a scope.
-                debugger;
-            }else{
-                target.scope = new OperationScope();
-            }
-        }
-    }
-    constructor(protected readonly $parent?:OperationScope){
-
-    }
-}
-
-export class Cursor{
-    root:OperationNode;
-    get childunit():OperationNode{
-        let t = <any>this.target;
-        let at = t.getAttribute('alias');
-        if (at){
-            return this.target;
-        }
-        return this.unit || this.target;
-    }
-    unit:OperationNode;
-    parent:OperationNode;
-    target:OperationNode;
-    constructor(){
-
-    }
-    static check(target:OperationNode){
-        if (!target.cs){
-            let cs = new Cursor();
-            cs.target = target;
-            target.cs = cs;
-        }
-    }
+    abstract setalias(alias:string):void;
 }

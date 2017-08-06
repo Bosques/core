@@ -195,7 +195,16 @@ export function diff(a:Date, b:Date, mode?:number){
 export function is(target:any, type:any){
     return target instanceof type;
 }
-
+export function trigger(target:any, name:string, args?:any[]){
+    let scope = target.scope;
+    if (!scope){
+        scope = {};
+    }
+    let evthandler:Function = scope[`on${name}`] || target[`on${name}`];
+    if (evthandler){
+        return evthandler.apply(target, args)
+    }
+}
 export class Factory<T>{
     protected list:T[] = [];
     regist(item:T){
@@ -219,13 +228,6 @@ export class NamedFactory<T extends NamedObject>{
         return this.cache[n];
     }
 }
-
-export class NamedObject{
-    protected _name:string;
-    get name():string{
-        return this._name;
-    }
-    constructor(name:string, protected caseSensitive?:boolean){
-        this._name = caseSensitive?name:name.toLowerCase();
-    }
+export interface NamedObject{
+    name:string;
 }
