@@ -10,7 +10,9 @@ export abstract class OperationNode extends Element{
             node.setalias = function(alias:string, group?:boolean){
                 let cs = <any>this.cs;
                 let u = cs.unit;
-                u[`$${alias}`] = this;
+                if (u){
+                    u[`$${alias}`] = this;
+                }
                 if (group){
                     let self = <OperationNode>this;
                     self._scope = new OperationScope(self._scope);

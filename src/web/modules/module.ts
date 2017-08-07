@@ -29,8 +29,10 @@ export abstract class Module{
     }
     setalias(alias:string, group?:boolean){
         this.alias = alias;
-        let u = <any>this.cs.childunit;
-        u[`$${alias}`] = this;
+        let u = <any>this.cs.unit;
+        if (u){
+            u[`$${alias}`] = this;
+        }
         if (group){
             this.scope = new ModuleScope(this.scope);
         }
