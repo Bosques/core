@@ -1,6 +1,7 @@
 import * as core from '../../common';
-import {ModuleFactory, Module, NodeModule} from './modulefactory';
+import {ModuleFactory} from './modulefactory';
 import {OperationNode} from './operationode';
+import {Module, NodeModule} from './module';
 
 
 export class Noder extends core.NamedFactory<ModuleFactory>{
@@ -22,37 +23,42 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
         }
         return {f:nodename, m:nodename};
     }
-    parseNode(target:OperationNode, parent?:Module){
-        OperationNode.check(target);
+    createmplate(target:OperationNode, name:string){
+        let template:any = {tag:name};
+        let alias:any = undefined;
+        let group = false;
+        core.all(target.attributes, (attr:Node, i:number)=>{
+            if (attr.nodeName == 'alias'){
+                alias = attr.nodeValue;
+            }else if (attr.nodeName == 'group'){
+                alias = attr.nodeValue;
+                group = true;
+            }else{
+                template[attr.nodeName] = attr.nodeValue;
+            }
+        });
+        return {template:template, alias:alias, group:group};
+    }
+    parseNode(target:OperationNode, parentNode?:OperationNode){
+        OperationNode.check(target, parentNode);
+
         let self = this;
         let r = self.getfactoryname(target.nodeName);
+        let temp = this.createmplate(target, r.m);
+        if (temp.alias && parentNode){
+            target.setalias(temp.alias, temp.group);
+        }
         let factory = <ModuleFactory>self.get(r.f);
         if (factory){
-            let template:any = {tag:r.m};
-            let alias:any = undefined;
-            let group = false;
-            core.all(target.attributes, (attr:Node, i:number)=>{
-                if (attr.nodeName == 'alias'){
-                    alias = attr.nodeValue;
-                }else if (attr.nodeName == 'group'){
-                    alias = attr.nodeValue;
-                    group = true;
-                }else{
-                    template[attr.nodeName] = attr.nodeValue;
-                }
-            });
-            let md = factory.create(template);
+            let md = factory.create(temp.template);
             if (md){
                 target.md = md;
                 md.$ref = target;
                 if (parent){
-                    //parentNode.setchild(target);
-                    //parentNode.md.setchild(md);
-                    md.setparent(parent);
+                    md.setparent(parentNode.md);
                 }
-                if (alias){
-                    md.setalias(alias, group);
-                    target.setalias(alias);
+                if (temp.alias){
+                    md.setalias(temp.alias, temp.group);
                 }        
                 core.trigger(md, 'created');
                 if (core.is(md, NodeModule)){
@@ -61,24 +67,14 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
                     core.trigger(md, 'rendered', [node]);
                 }
                 core.all(target.childNodes, function(item:any, i:number){
-                    self.parseNode(item, md);
-                    let el = <OperationNode>item;
-                    let alias = el.getAttribute('alias');
-                    if (alias){
-                        el.setalias(alias);
-                    }
+                    self.parseNode(item, target);
                 });
                 core.trigger(md, 'ready');
             }
         }else{
             core.all(target.childNodes, function(item:Node, i:number){
                 if (item.nodeName.indexOf('#')<0){
-                    self.parseNode(<any>item);
-                    let el = <OperationNode>item;
-                    let alias = el.getAttribute('alias');
-                    if (alias){
-                        el.setalias(alias);
-                    }
+                    self.parseNode(<any>item, target);
                 }
             });
         }

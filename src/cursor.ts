@@ -2,7 +2,7 @@ export class Cursor<T extends {cs:any}>{
     root:T;
     get childunit():T{
         let t = <any>this.target;
-        let at = t.getAttribute('alias');
+        let at = t['alias'] || t.getAttribute('alias');
         if (at){
             return this.target;
         }
@@ -12,13 +12,21 @@ export class Cursor<T extends {cs:any}>{
     parent:T;
     target:T;
     constructor(){
-
     }
+    
     static check<T extends {cs:any}>(target:T){
         if (!target.cs){
             let cs = new Cursor<T>();
             cs.target = target;
             target.cs = cs;
+        }
+    }
+
+    setparent(pcs?:Cursor<T>){
+        if (pcs){
+            this.parent = pcs.target;
+            this.root = pcs.root || pcs.target;
+            this.unit = pcs.childunit;
         }
     }
 }
