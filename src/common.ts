@@ -210,6 +210,11 @@ export class Factory<T>{
     regist(item:T){
         add(this.list, item);
     }
+    registAll(items:T[]){
+        all(items, (it:T, i:number)=>{
+            add(this.list, it);
+        });
+    }
 }
 export class NamedFactory<T extends NamedObject>{
     protected cache:any = {};
@@ -222,6 +227,15 @@ export class NamedFactory<T extends NamedObject>{
             name = name.toLowerCase();
         }
         this.cache[name] = item;
+    }
+    registAll(items:T[]){
+        all(items, (it:T, i:string)=>{
+            let n = i;
+            if (!this.caseSensitive){
+                n = n.toLowerCase();
+            }
+            this.cache[n] = it;
+        });
     }
     get(name:string){
         let n = (!this.caseSensitive)?name.toLowerCase():name;
