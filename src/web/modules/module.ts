@@ -7,9 +7,11 @@ import { ModuleScope } from "./modulescope";
 
 export abstract class Module{
     cs:Cursor<Module>;
-    scope:ModuleScope;
+    scope:any;
     $ref:any;
+    $obj:any;
     alias:string;
+    readonly $props:any = {};
     constructor(public readonly name:string){
         name = name.toLowerCase();
         //this.cs = new Cursor<Module>();

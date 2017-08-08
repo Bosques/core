@@ -60,16 +60,16 @@ export class Noder extends core.NamedFactory<ModuleFactory>{
                 if (temp.alias){
                     md.setalias(temp.alias, temp.group);
                 }        
-                core.trigger(md, 'created');
                 if (core.is(md, NodeModule)){
                     let ndmodule = <NodeModule>md;
                     let node = ndmodule.render(target);
                     core.trigger(md, 'rendered', [node]);
                 }
+                core.trigger(md, 'created', [parentNode?parentNode.md:null]);
                 core.all(target.childNodes, function(item:any, i:number){
                     self.parseNode(item, target);
                 });
-                core.trigger(md, 'ready');
+                core.trigger(md, 'ready', [parentNode?parentNode.md:null]);
             }
         }else{
             core.all(target.childNodes, function(item:Node, i:number){

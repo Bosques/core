@@ -12,7 +12,12 @@ export abstract class ModuleFactory extends core.NamedFactory<Module> implements
         super();
         name = name.toLowerCase();
     }
-    abstract create(target:ModuleTemplate):Module;
+    create(target:ModuleTemplate):Module{
+        let rlt = this.docreate(target);
+        core.extend(rlt.$props, target, {tag:true});
+        return rlt;
+    }
+    abstract docreate(target:ModuleTemplate):Module;
     abstract process(target:ModuleTemplate):void;
 }
 
