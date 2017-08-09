@@ -195,14 +195,17 @@ export function diff(a:Date, b:Date, mode?:number){
 export function is(target:any, type:any){
     return target instanceof type;
 }
-export function trigger(target:any, name:string, args?:any[]){
-    let scope = target.scope;
+export function trigger(target:any, name:string, args?:any[], scope?:any){
     if (!scope){
         scope = {};
     }
-    let evthandler:Function = scope[`on${name}`] || target[`on${name}`];
+    let evthandler:Function = target[`on${name}`];
+    let scopehandler:Function = scope[`on${name}`];
     if (evthandler){
-        return evthandler.apply(target, args)
+        evthandler.apply(target, args)
+    }
+    if (scopehandler){
+        scopehandler.apply(target, args);
     }
 }
 export class Factory<T>{

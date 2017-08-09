@@ -29,4 +29,11 @@ export class Cursor<T extends {cs:any}>{
             this.unit = pcs.childunit;
         }
     }
+
+    dispose(){
+        this.root = null;
+        this.unit = null;
+        this.parent = null;
+        this.target = null;
+    }
 }

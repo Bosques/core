@@ -1,6 +1,7 @@
 import { ModuleScope } from "./modulescope";
 import { Module, NodeModule } from "./module";
 import { Cursor } from "../../cursor";
+import {vnode} from "./vnode";
 
 export abstract class OperationNode extends Element{
 
@@ -42,7 +43,7 @@ export abstract class OperationNode extends Element{
         return false;
     }
 
-    //protected _scope:OperationScope;
+    vn:vnode;
     md:Module;
     protected _scope:OperationScope;
     cs:Cursor<OperationNode>;
