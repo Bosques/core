@@ -208,6 +208,12 @@ export function trigger(target:any, name:string, args?:any[], scope?:any){
         scopehandler.apply(target, args);
     }
 }
+export function create(constructor:any, argArray:any[], nocreate?:boolean) {
+    var args = [null].concat(argArray);
+    var factoryFunction = constructor.bind.apply(constructor, args);
+    return nocreate ? factoryFunction : new factoryFunction();
+}
+
 export class Factory<T>{
     protected list:T[] = [];
     regist(item:T){
@@ -245,6 +251,33 @@ export class NamedFactory<T extends NamedObject>{
         return this.cache[n];
     }
 }
+export class NamedCreator<T extends NamedObject>{
+    protected cache:any = {};
+    constructor(protected caseSensitive?:boolean){
+
+    }
+    regist(item:T, factoryName?:string){
+        let c = (<any>item).constructor;
+        let name = factoryName || item.name
+        if (!this.caseSensitive){
+            name = name.toLowerCase();
+        }
+        this.cache[name] = c;
+    }
+    create(name:string, args?:any[]){
+        let n = (!this.caseSensitive)?name.toLowerCase():name;
+        let c = this.cache[n];
+        if (c){
+            return create(c, args);
+        }
+        return null;
+    }
+    get(name:string){
+        let n = (!this.caseSensitive)?name.toLowerCase():name;
+        return this.cache[n];
+    }
+}
+
 export interface NamedObject{
     name:string;
 }

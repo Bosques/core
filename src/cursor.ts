@@ -2,7 +2,7 @@ export class Cursor<T extends {cs:any}>{
     root:T;
     get childunit():T{
         let t = <any>this.target;
-        let at = t['alias'] || t.getAttribute('alias');
+        let at = t['alias'] || (t.getAttribute && t.getAttribute('alias'));
         if (at){
             return this.target;
         }

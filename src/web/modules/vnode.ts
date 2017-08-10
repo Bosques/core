@@ -4,27 +4,37 @@ import {OperationNode} from './operationode';
 import { Cursor } from "../../cursor";
 import {Module, NodeModule} from './module';
 
-export class VNodeFactory implements core.NamedObject{
+export class NodeFactory implements core.NamedObject{
     constructor(public readonly name:string){
     }
-    static instance:core.NamedFactory<VNodeFactory> = new core.NamedFactory<VNodeFactory>();
+    static instance:core.NamedCreator<vnode> = new core.NamedCreator<vnode>();
+    static parse(entry:any, scope?:any){
+        let rlt = parseElement(entry, scope);
+        return rlt;
+    }
 }
 
-export function parseElement(node:CoreNode, parent?:CoreNode, scope?:any){
-    let md:Module = undefined;
+export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
+    let tag:string = null;
     if (core.is(node, Element)){
         let el = <Element><any>node;
-        let tag = el.tagName.toLowerCase();
-        md = VNodeFactory.instance.get(tag);
+        tag = el.tagName.toLowerCase();
+    }else{
+        tag = node.nodeName.toLowerCase();
     }
-    let vn = new vnode(node, scope || (parent?parent.vn.scope():undefined), md?md.create():undefined);
+    //let vn = new vnode(node, scope || (parent?parent.vn.scope():undefined), md?md.create():undefined);
+    let vn = <vnode>NodeFactory.instance.create(tag, [node]);
+    if (!vn){
+        vn = new vnode(node, 'vnode');
+    }
+    vn.setscope(scope || (parent?parent.vn.scope():undefined));
     node.vn = vn;
 
     let attrs = node.attributes;
     core.all(attrs, (at:CoreNode, i:number)=>{
         let aname = at.nodeName.toLowerCase();
         if (aname == 'alias' || aname == 'group'){
-            vn.setalias(aname, aname == 'group');
+            scope = vn.setalias(aname, aname == 'group');
         }else{
             vn.addprop(at.nodeName, at.nodeValue);
         }
@@ -32,15 +42,16 @@ export function parseElement(node:CoreNode, parent?:CoreNode, scope?:any){
     if (parent){
         vn.setparent(parent.vn);
     }
-    core.trigger(vn, 'created', [parent.vn], vn.scope());
+    core.trigger(vn, 'created', [parent?parent.vn:null], vn.scope());
     let children = node.childNodes;
     core.all(children, (ch:OperationNode, i:number)=>{
-        parseElement(ch, node);
+        parseElement(ch, scope, node);
     });
-    core.trigger(vn, 'ready', [parent.vn], vn.scope());
+    core.trigger(vn, 'ready', [parent?parent.vn:null], vn.scope());
 }
 
 export class vnode {
+    readonly name:string;
     readonly cs:Cursor<vnode>;
     alias:string;
 
@@ -49,12 +60,11 @@ export class vnode {
 
     readonly children:vnode[] = [];
     protected _props:any = {};
-    constructor(el?:Node, protected _scope?:any, public readonly md?:Module){
+    protected _scope:any;
+    constructor(el:CoreNode, name?:string){
         this.ref = el;
-        if (!this._scope){
-            this._scope = {};
-        }
-        this.cs = new Cursor<vnode>();
+        Cursor.check<vnode>(this);
+        this.name = name;
     }
     prop(name:string){
         return this._props[name];
@@ -65,6 +75,9 @@ export class vnode {
     addprop(name:string, val:any){
         let self = this;
         this._props[name] = val;
+    }
+    setscope(scope?:any){
+        this._scope = scope || {};
     }
     setparent(parent:vnode){
         this.cs.setparent(parent.cs);
@@ -83,6 +96,7 @@ export class vnode {
                 this._scope.$parent = u.scope();
             }
         }
+        return this._scope;
     }
     dispose(){
         this._props = null;
