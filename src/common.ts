@@ -195,18 +195,22 @@ export function diff(a:Date, b:Date, mode?:number){
 export function is(target:any, type:any){
     return target instanceof type;
 }
-export function trigger(target:any, name:string, args?:any[], scope?:any){
+export function trigger(target:any, name:string, args?:any[]){
+    let scope = target.on;
     if (!scope){
         scope = {};
     }
     let evthandler:Function = target[`on${name}`];
-    let scopehandler:Function = scope[`on${name}`];
+    let scopehandler:Function = scope[name];
+    let rlt:any = null;
     if (evthandler){
-        evthandler.apply(target, args)
+        rlt = evthandler.apply(target, args)
     }
     if (scopehandler){
-        scopehandler.apply(target, args);
+        add(args, rlt);
+        rlt = scopehandler.apply(target, args);
     }
+    return rlt;
 }
 export function create(constructor:any, argArray:any[], nocreate?:boolean) {
     var args = [null].concat(argArray);
@@ -254,7 +258,6 @@ export class NamedFactory<T extends NamedObject>{
 export class NamedCreator<T extends NamedObject>{
     protected cache:any = {};
     constructor(protected caseSensitive?:boolean){
-
     }
     regist(item:T, factoryName?:string){
         let c = (<any>item).constructor;

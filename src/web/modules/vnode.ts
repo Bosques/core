@@ -3,6 +3,7 @@ import {ModuleFactory} from './modulefactory';
 import {OperationNode} from './operationode';
 import { Cursor } from "../../cursor";
 import {Module, NodeModule} from './module';
+import * as nodes from '../elements';
 
 export class NodeFactory implements core.NamedObject{
     constructor(public readonly name:string){
@@ -33,8 +34,15 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
     let attrs = node.attributes;
     core.all(attrs, (at:CoreNode, i:number)=>{
         let aname = at.nodeName.toLowerCase();
+        let aval = at.nodeValue;
         if (aname == 'alias' || aname == 'group'){
             scope = vn.setalias(aname, aname == 'group');
+        }else if (core.starts(aname, 'if')){
+            let f = vn.scope()[aval];
+            if (f){
+                let n = aname.substr(2, aname.length - 2);
+                vn.on[n] = f;
+            }
         }else{
             vn.addprop(at.nodeName, at.nodeValue);
         }
@@ -42,12 +50,18 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
     if (parent){
         vn.setparent(parent.vn);
     }
-    core.trigger(vn, 'created', [parent?parent.vn:null], vn.scope());
+    let html = core.trigger(vn, 'render', [parent?parent.vn:null]);
+    if (html){
+        let n = nodes.create(html);
+        parent.appendChild(n);
+        core.trigger(vn, 'rendered', [n]);
+    }
+    core.trigger(vn, 'created', [parent?parent.vn:null]);
     let children = node.childNodes;
     core.all(children, (ch:OperationNode, i:number)=>{
         parseElement(ch, scope, node);
     });
-    core.trigger(vn, 'ready', [parent?parent.vn:null], vn.scope());
+    core.trigger(vn, 'ready', [parent?parent.vn:null]);
 }
 
 export class vnode {
@@ -58,6 +72,8 @@ export class vnode {
     ref:any;
     obj:any;
 
+    on:any;
+
     readonly children:vnode[] = [];
     protected _props:any = {};
     protected _scope:any;
@@ -65,6 +81,7 @@ export class vnode {
         this.ref = el;
         Cursor.check<vnode>(this);
         this.name = name;
+        this.on = {};
     }
     prop(name:string){
         return this._props[name];
