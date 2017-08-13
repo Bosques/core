@@ -1,10 +1,10 @@
 import {log} from './info';
 import {add} from './common';
-import {Noder} from './web/modules/noder';
+import * as nodes from './web/modules/vnode';
 
 export function init(callback?:Function){
     if (callback){
-        callback(Noder.instance);
+        callback(nodes.NodeFactory.instance);
     }
     log("Core module loaded");
 }

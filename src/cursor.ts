@@ -1,4 +1,4 @@
-export class Cursor<T extends {cs:any}>{
+export class Cursor<T extends {cs:any, name:string}>{
     root:T;
     get childunit():T{
         let t = <any>this.target;
@@ -6,15 +6,29 @@ export class Cursor<T extends {cs:any}>{
         if (at){
             return this.target;
         }
-        return this.unit || this.target;
+        return this._unit || this.target;
     }
-    unit:T;
+    unit(name?:string):T{
+        let u = this._unit;
+        if (name){
+            while (true){
+                if (!u || u.name == name){
+                    break;
+                }
+                u = u.cs._unit;
+            }
+            return (u && u.name == name)?u:undefined;
+        }else{
+            return u;
+        }
+    }
+    protected _unit:T;
     parent:T;
     target:T;
     constructor(){
     }
     
-    static check<T extends {cs:any}>(target:T){
+    static check<T extends {cs:any, name:string}>(target:T){
         if (!target.cs){
             let cs = new Cursor<T>();
             cs.target = target;
@@ -26,13 +40,13 @@ export class Cursor<T extends {cs:any}>{
         if (pcs){
             this.parent = pcs.target;
             this.root = pcs.root || pcs.target;
-            this.unit = pcs.childunit;
+            this._unit = pcs.childunit;
         }
     }
 
     dispose(){
         this.root = null;
-        this.unit = null;
+        this._unit = null;
         this.parent = null;
         this.target = null;
     }

@@ -1,8 +1,5 @@
 import * as core from '../../common';
-import {ModuleFactory} from './modulefactory';
-import {OperationNode} from './operationode';
 import { Cursor } from "../../cursor";
-import {Module, NodeModule} from './module';
 import * as nodes from '../elements';
 
 export class NodeFactory implements core.NamedObject{
@@ -30,13 +27,15 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
     }
     vn.setscope(scope || (parent?parent.vn.scope():undefined));
     node.vn = vn;
-
+    if (parent){
+        vn.setparent(parent.vn);
+    }
     let attrs = node.attributes;
     core.all(attrs, (at:CoreNode, i:number)=>{
         let aname = at.nodeName.toLowerCase();
         let aval = at.nodeValue;
         if (aname == 'alias' || aname == 'group'){
-            scope = vn.setalias(aname, aname == 'group');
+            scope = vn.setalias(aval, aname == 'group');
         }else if (core.starts(aname, 'if')){
             let f = vn.scope()[aval];
             if (f){
@@ -47,9 +46,6 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
             vn.addprop(at.nodeName, at.nodeValue);
         }
     });
-    if (parent){
-        vn.setparent(parent.vn);
-    }
     let html = core.trigger(vn, 'render', [parent?parent.vn:null]);
     if (html){
         let n = nodes.create(html);
@@ -58,10 +54,16 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
     }
     core.trigger(vn, 'created', [parent?parent.vn:null]);
     let children = node.childNodes;
-    core.all(children, (ch:OperationNode, i:number)=>{
+    core.all(children, (ch:CoreNode, i:number)=>{
         parseElement(ch, scope, node);
     });
-    core.trigger(vn, 'ready', [parent?parent.vn:null]);
+    core.trigger(vn, 'setup', [parent?parent.vn:null]);
+    core.all(children, (ch:CoreNode, i:number)=>{
+        let v = ch.vn;
+        if (v){
+            core.trigger(vn, 'ready', [node.vn]);
+        }
+    });
 }
 
 export class vnode {
@@ -70,7 +72,6 @@ export class vnode {
     alias:string;
 
     ref:any;
-    obj:any;
 
     on:any;
 
@@ -105,7 +106,7 @@ export class vnode {
     }
     setalias(alias:string, group:boolean){
         this.alias = alias;
-        let u = <any>this.cs.unit;
+        let u = <any>this.cs.unit();
         if (u){
             u[`$${alias}`] = this;
             if (group){
