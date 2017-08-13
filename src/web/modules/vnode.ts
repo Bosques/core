@@ -61,7 +61,7 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
     core.all(children, (ch:CoreNode, i:number)=>{
         let v = ch.vn;
         if (v){
-            core.trigger(vn, 'ready', [node.vn]);
+            core.trigger(v, 'ready', [node.vn]);
         }
     });
 }
