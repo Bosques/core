@@ -1,8 +1,8 @@
-export class Cursor<T extends {cs:any, name:string}>{
+export class Cursor<T extends {cs:any, name:string, has?:Function}>{
     root:T;
     get childunit():T{
         let t = <any>this.target;
-        let at = t['alias'] || (t.getAttribute && t.getAttribute('alias'));
+        let at = t['alias'] || t['group'] || (t.getAttribute && (t.getAttribute('alias') || t.getAttribute('group')));
         if (at){
             return this.target;
         }
@@ -10,14 +10,17 @@ export class Cursor<T extends {cs:any, name:string}>{
     }
     unit(name?:string):T{
         let u = this._unit;
+        let has = u.has || function(name:string){
+            return this.name == name;
+        }
         if (name){
             while (true){
-                if (!u || u.name == name){
+                if (!u || has.apply(u, name)){
                     break;
                 }
                 u = u.cs._unit;
             }
-            return (u && u.name == name)?u:undefined;
+            return (u && has.apply(u, name))?u:undefined;
         }else{
             return u;
         }

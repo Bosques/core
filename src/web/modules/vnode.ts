@@ -34,8 +34,13 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
     core.all(attrs, (at:CoreNode, i:number)=>{
         let aname = at.nodeName.toLowerCase();
         let aval = at.nodeValue;
-        if (aname == 'alias' || aname == 'group'){
-            scope = vn.setalias(aval, aname == 'group');
+        if (aname == 'alias'){
+            vn.setalias(aval);
+        }else if(aname == 'group'){
+            if (!this.alias && aval && aval.length > 0){
+                this.setalias(aval);                
+            }
+            scope = vn.setgroup();
         }else if (core.starts(aname, 'if')){
             let f = vn.scope()[aval];
             if (f){
@@ -75,6 +80,10 @@ export class vnode {
 
     on:any;
 
+    has(name:string){
+        return this.name == name || this.alias == name;
+    }
+
     readonly children:vnode[] = [];
     protected _props:any = {};
     protected _scope:any;
@@ -104,17 +113,23 @@ export class vnode {
     addchild(child:vnode){
         core.add(this.children, child);
     }
-    setalias(alias:string, group:boolean){
+    setgroup(){
+        let u = <any>this.cs.unit();
+        if (this.alias){
+            this._scope = this._scope[`$${this.alias}`] || {};
+        }else{
+            this._scope = {};
+        }
+        this._scope.$parent = u.scope();
+        this._scope.$root = this.cs.root.scope();
+        return this._scope;
+    }
+    setalias(alias:string){
         this.alias = alias;
         let u = <any>this.cs.unit();
         if (u){
             u[`$${alias}`] = this;
-            if (group){
-                this._scope = this._scope[`$${alias}`] || {};
-                this._scope.$parent = u.scope();
-            }
         }
-        return this._scope;
     }
     dispose(){
         this._props = null;
