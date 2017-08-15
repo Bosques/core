@@ -1,6 +1,7 @@
 import * as core from '../../common';
 import { Cursor } from "../../cursor";
 import * as nodes from '../elements';
+import {Scope} from './scope';
 
 export class NodeFactory implements core.NamedObject{
     constructor(public readonly name:string){
