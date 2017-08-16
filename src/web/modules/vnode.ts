@@ -7,13 +7,13 @@ export class NodeFactory implements core.NamedObject{
     constructor(public readonly name:string){
     }
     static instance:core.NamedCreator<vnode> = new core.NamedCreator<vnode>();
-    static parse(entry:any, scope?:any){
+    static parse(entry:any, scope?:Scope){
         let rlt = parseElement(entry, scope);
         return rlt;
     }
 }
 
-export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
+export function parseElement(node:CoreNode, scope?:Scope, parent?:CoreNode){
     let tag:string = null;
     if (core.is(node, Element)){
         let el = <Element><any>node;
@@ -43,7 +43,7 @@ export function parseElement(node:CoreNode, scope?:any, parent?:CoreNode){
             }
             scope = vn.setgroup();
         }else if (core.starts(aname, 'if')){
-            let f = vn.scope()[aval];
+            let f = vn.scope().bag[aval];
             if (f){
                 let n = aname.substr(2, aname.length - 2);
                 vn.on[n] = f;
@@ -87,7 +87,7 @@ export class vnode {
 
     readonly children:vnode[] = [];
     protected _props:any = {};
-    protected _scope:any;
+    protected _scope:Scope;
     constructor(el:CoreNode, name?:string){
         this.ref = el;
         Cursor.check<vnode>(this);
@@ -105,7 +105,7 @@ export class vnode {
         this._props[name] = val;
     }
     setscope(scope?:any){
-        this._scope = scope || {};
+        this._scope = scope || new Scope();
     }
     setparent(parent:vnode){
         this.cs.setparent(parent.cs);
@@ -117,12 +117,15 @@ export class vnode {
     setgroup(){
         let u = <any>this.cs.unit();
         if (this.alias){
-            this._scope = this._scope[`$${this.alias}`] || {};
+            let preset = this._scope.children[`${this.alias}`];
+            if (preset){
+                this._scope = preset;
+            }else{
+                this._scope = this._scope.child(this.alias);
+            }
         }else{
-            this._scope = {};
+            this._scope = this._scope.child();
         }
-        this._scope.$parent = u.scope();
-        this._scope.$root = this.cs.root.scope();
         return this._scope;
     }
     setalias(alias:string){
