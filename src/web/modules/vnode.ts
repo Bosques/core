@@ -38,8 +38,8 @@ export function parseElement(node:CoreNode, scope?:Scope, parent?:CoreNode){
         if (aname == 'alias'){
             vn.setalias(aval);
         }else if(aname == 'group'){
-            if (!this.alias && aval && aval.length > 0){
-                this.setalias(aval);                
+            if (!vn.alias && aval && aval.length > 0){
+                vn.setalias(aval);                
             }
             scope = vn.setgroup();
         }else if (core.starts(aname, 'if')){
