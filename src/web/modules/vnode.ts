@@ -59,6 +59,7 @@ export function parseElement(node:CoreNode, scope?:Scope, parent?:CoreNode){
         core.trigger(vn, 'rendered', [n]);
     }
     core.trigger(vn, 'created', [parent?parent.vn:null]);
+    core.trigger(vn, 'place', [parent?parent.vn:null]);
     let children = node.childNodes;
     core.all(children, (ch:CoreNode, i:number)=>{
         parseElement(ch, scope, node);
